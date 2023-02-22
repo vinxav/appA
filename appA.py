@@ -3,6 +3,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
 import requests
+from time import sleep
 
 message = "Alô, mundo!"
 message2 = "!odnum, ôlA"
@@ -33,14 +34,17 @@ signature = private_key.sign(encrypted_message,
                                          salt_length=padding.PSS.MAX_LENGTH),
                              hashes.SHA256())
 
-# Sends the message and the signature to AppB
-print("Sending the message with the correct signature...")
-requests.post('http://flask:5000', json={'encrypted_message': encrypted_message.hex(),
-                                         'signature': signature.hex(),
-                                         'public_key': public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                                                               format=serialization.PublicFormat.SubjectPublicKeyInfo).decode()})
-print("Sending a different message with the previous signature...")
-requests.post('http://flask:5000', json={'encrypted_message': encrypted_message2.hex(),
-                                         'signature': signature.hex(),
-                                         'public_key': public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                                                               format=serialization.PublicFormat.SubjectPublicKeyInfo).decode()})
+while True:
+    # Sends the message and the signature to AppB
+    print("Sending the message with the correct signature...", flush=True)
+    requests.post('http://flask:5000', json={'encrypted_message': encrypted_message.hex(),
+                                             'signature': signature.hex(),
+                                             'public_key': public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                                                   format=serialization.PublicFormat.SubjectPublicKeyInfo).decode()})
+    print("Sending a different message with the previous signature...", flush=True)
+    requests.post('http://flask:5000', json={'encrypted_message': encrypted_message2.hex(),
+                                             'signature': signature.hex(),
+                                             'public_key': public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                                                                   format=serialization.PublicFormat.SubjectPublicKeyInfo).decode()})
+
+    sleep(5)
